@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <time.h>
+#include "myhis.c"
 
 /******************************************************************
  * Filename: Parse input lines 
@@ -23,6 +24,40 @@ typedef struct command {
  char *argv[50];
  char cmdstring[1000];
 }cmd;
+
+void setpathvar() {
+	/*Set path variable so commands can be used from anywhere*/
+	char *pathname;
+	char curdir[500];
+	char newpath[1500];
+	getwd(curdir);
+	pathname = getenv("PATH");
+	strcpy(newpath, pathname);
+	strcat(newpath, ":");
+	strcat(newpath, curdir);
+	setenv("PATH", newpath, 1);
+	printf("%s\n", getenv("PATH"));	
+}
+
+
+char *shellfn[] = {"mycd","exit"};
+int numshellfn = 2;
+
+//Implement the shell exit function
+int myexit(char **args) {
+	exit(0);
+}
+
+//Change directory function
+int mycd(char **args) {
+	if(args[1] == NULL) {
+			perror("mycd");
+	}
+	else {
+					chdir(args[1]);
+	}
+	return 1;
+}
 
 int numpipes(char* inp) {
 		int n1 = 0;
@@ -76,11 +111,11 @@ cmd *splitintoargs(int argc, char *inp) {
 }
 
 
-char* read_user_input() {
+cmdnode* read_user_input(cmdnode* historybuffer) {
 	char *buffer = NULL;
 	size_t bufsize = 0;
-	getline(&buffer, &bufsize, stdin);
-	return buffer;
+	//getline(&buffer, &bufsize, stdin);
+	return readinput(historybuffer);
 }
 
 int create_process(int in, int out, cmd* cmdarr) {
@@ -113,6 +148,7 @@ int runchains(int pipes, cmd* cmdarr) {
  }
  if(in!=0) dup2(in, 0);
  return execvp((cmdarr+i)->argv[0], (char * const*)cmdarr[i].argv);
+ 
 }
 
 
@@ -120,14 +156,24 @@ int cmd_execute(int pipes, cmd* cmdarr) {
 	pid_t pid;
 	int status;
 	int bkg = 0;
+	int i = 0;
 	if(cmdarr->argv[0]==NULL) { perror("No arguments"); return 1;}
 	if(strcmp(cmdarr->argv[cmdarr->argc-1], "&")==0) {
 				 	bkg = 1;
 					cmdarr->argv[cmdarr->argc-1] = NULL;
 	}
 	printf("Number of pipes: %d\n", pipes);
+	//Execute mycd and exit
+	for(i=0;i<numshellfn;i++) {
+		if(strcmp(cmdarr->argv[0], shellfn[i])==0) {
+			if(i == 0) mycd(cmdarr->argv);
+			else if(i==1) myexit(cmdarr->argv);
+			return 1;
+		}
+	}
+
 	if((pid = fork())==0) { //This is the child
-					if(pipes>0) runchains(pipes,cmdarr);
+					if(pipes>0) { runchains(pipes,cmdarr); exit(0); }
 					printf("Command to execute: %s\n", cmdarr->argv[0]);
 					if(bkg) setpgid(0, 0);
 					if(execvp(cmdarr[0].argv[0], (char* const*)cmdarr[0].argv)==-1) perror("Execvp: ");
@@ -147,9 +193,12 @@ int main(int argc, char **argv){
 	cmd *cmdarr;
 	int pipes;
 	int retval = 1;
+	setpathvar();
+	cmdnode* historybuffer = makebuffer(10);
 	while(1) {
-		printf(">");
-		cmdinput = read_user_input();
+		printf(">");fflush(NULL);
+		historybuffer = read_user_input(historybuffer);
+		cmdinput = historybuffer->prev->str;
 		pipes = numpipes(cmdinput);
 		cmdarr = splitintoargs(pipes, cmdinput);
 		retval = cmd_execute(pipes, cmdarr);

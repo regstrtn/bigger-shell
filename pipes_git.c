@@ -146,7 +146,7 @@ static char* skipwhite(char* s)
  
 static void split(char* cmd)
 {
-	//cmd = skipwhite(cmd);
+	cmd = skipwhite(cmd);
 	char* next = strchr(cmd, ' ');
 	int i = 0;
  
