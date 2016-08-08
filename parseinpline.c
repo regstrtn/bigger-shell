@@ -85,7 +85,7 @@ cmd *splitintoargs(int argc, char *inp) {
 		i++;
 	}
 	i = 0;
-	cmdarr = (cmd*)malloc(sizeof(cmd)*n1);
+	cmdarr = (cmd*)malloc(sizeof(cmd)*(1+n1));
 	token = strtok(inpbuffer, s1);
 	while(token!=NULL) {
 		strcpy((cmdarr+i)->cmdstring, token);
@@ -101,12 +101,12 @@ cmd *splitintoargs(int argc, char *inp) {
 			//strcpy((cmdarr+i)->argv[j], token);
 			(cmdarr+i)->argv[j] = token;	
 			token = strtok(NULL, s2);
-			printf("cmd string tokens: %s\n", (cmdarr+i)->argv[j]);
+			printf("cmd string tokens: %d %s\n", j, (cmdarr+i)->argv[j]);
 			j++;
 		}
 			(cmdarr+i)->argc = j;
-			(cmdarr+i)->argv[j] = NULL;
-		  (cmdarr+i)->argv[j] = NULL; //I think this is not required
+			printf("cmdstringtokens: %d %s\n", j, (cmdarr+i)->argv[j]);
+			(cmdarr+i)->argv[j] = NULL; //Set last argument to execvp as NULL
 	} return cmdarr;
 }
 
@@ -177,13 +177,16 @@ int cmd_execute(int pipes, cmd* cmdarr) {
 					printf("Command to execute: %s\n", cmdarr->argv[0]);
 					if(bkg) setpgid(0, 0);
 					if(execvp(cmdarr[0].argv[0], (char* const*)cmdarr[0].argv)==-1) perror("Execvp: ");
-					exit(0);
+					exit(errno);
 					
 	}
 	else { //Parent
 					usleep(10000);
 					if(!bkg) wait(&status);
 					if(bkg) waitpid(pid, &status, WNOHANG);
+					if(WIFEXITED(status)) {
+						printf("Child exited with %d\n", WEXITSTATUS(status));
+					}
 	}
 	return 0;
 }
@@ -194,7 +197,7 @@ int main(int argc, char **argv){
 	int pipes;
 	int retval = 1;
 	setpathvar();
-	cmdnode* historybuffer = makebuffer(10);
+	cmdnode* historybuffer = makebuffer(30);
 	while(1) {
 		printf(">");fflush(NULL);
 		historybuffer = read_user_input(historybuffer);

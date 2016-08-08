@@ -102,15 +102,17 @@ cmdnode* testlinklist(int n,cmdnode* historybuffer, cmdnode* historymarker) {
 
 cmdnode* readinput(cmdnode* historybuffer) {
 	char c, arrow;
-	int comlen = 0;
+	int comlen = 0, j = 0;
 	char currentcommand[500];
 	cmdnode* historymarker = historybuffer;
 	memset(currentcommand, 0, sizeof(currentcommand));
 		while((c=readchar())!='\n') {
 			if(c==127) {
 				printf("\b \b");
-				currentcommand[strlen(currentcommand)-1] = '\0';
-				//printf("Backspace pressed");
+				comlen = strlen(currentcommand);
+				for(j=comlen-1;j<500;j++) currentcommand[j] = '\0';
+				comlen = strlen(currentcommand);
+				//printf("Post backspace: %d %s\n",comlen, currentcommand);
 			}
 			if(c == '\033') {
 				readchar();
@@ -146,7 +148,7 @@ cmdnode* readinput(cmdnode* historybuffer) {
 		} 
 		strcpy(historybuffer->str, currentcommand);
 		//historybuffer = historybuffer->next;
-		printf("Current command from read fn: %s\n", historybuffer->str);
+		printf("\nCurrent command from read fn: %s\n", historybuffer->str);
 		return historybuffer->next;
 		//currentcommand[0] = '\0';	
 } 
