@@ -129,7 +129,8 @@ int create_process(int in, int out, cmd* cmdarr) {
 			dup2(out, 1);
 			close(out);
 		}
-		return execvp(cmdarr->argv[0], (char* const*)cmdarr->argv);
+	 execvp(cmdarr->argv[0], (char* const*)cmdarr->argv);
+	 exit(errno);
 	}
 	return pid;
 }
@@ -147,8 +148,8 @@ int runchains(int pipes, cmd* cmdarr) {
 		in = fd[0]; //Set in for the input of next process
  }
  if(in!=0) dup2(in, 0);
- return execvp((cmdarr+i)->argv[0], (char * const*)cmdarr[i].argv);
- 
+ execvp((cmdarr+i)->argv[0], (char * const*)cmdarr[i].argv); 
+ exit(errno);
 }
 
 

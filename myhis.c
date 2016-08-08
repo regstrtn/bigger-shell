@@ -56,7 +56,7 @@ cmdnode* makebuffer(int n) {
 	a->next = head;
 	head->prev = a;
 	for(i = 0;i<n+1;i++) {
-		printf("Number: %d\n", b->i);
+		//printf("Number: %d\n", b->i);
 	 	b = b->next;
 	}
 	return head;
