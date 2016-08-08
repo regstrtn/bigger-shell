@@ -45,10 +45,12 @@ cmdnode* makebuffer(int n) {
 	cmdnode *head = (cmdnode *)malloc(sizeof(cmdnode));
 	head->i = 0;
 	a = b = head;
+	memset(a->str, 0, sizeof(a->str));
 	for(i=1;i<n;i++) {
 			a->next = (cmdnode *)malloc(sizeof(cmdnode));
 			a->next->prev = a;
 			a->next->i = i;
+			memset(a->next->str, 0, sizeof(a->next->str));
 			a = a->next;
 	}
 	a->next = head;
@@ -66,18 +68,19 @@ cmdnode* testlinklist(int n, cmdnode* historybuffer, cmdnode* historymarker);
 	//char* commands[] = {"fire", "in", "the", "hole"};
 
 
-int testmainfunction(int argc, char **argv) {
+int testmain(int argc, char **argv) {
 //This is the main function that is getting called by the shell
 	int i = 0;
 	char* arrtoreturn = (char*)malloc(500*sizeof(char));
-	cmdnode* historybuffer = makebuffer(5);
+	cmdnode* historybuffer = makebuffer(10);
 	cmdnode *historymarker;
 	cmdnode *currcommandmarker;
-	//while(1) {
+	while(1) {
 					historybuffer = readinput(historybuffer);
 					//historybuffer = testlinklist(i, historybuffer, historymarker);
 					printf("Curr comm printed from main: %s\n", historybuffer->prev->str);
-	//}
+					if(i++>15) break;
+	}
 	strcpy(arrtoreturn, historybuffer->prev->str);
 	return 1;
 }
@@ -99,6 +102,7 @@ cmdnode* testlinklist(int n,cmdnode* historybuffer, cmdnode* historymarker) {
 
 cmdnode* readinput(cmdnode* historybuffer) {
 	char c, arrow;
+	int comlen = 0;
 	char currentcommand[500];
 	cmdnode* historymarker = historybuffer;
 	memset(currentcommand, 0, sizeof(currentcommand));
@@ -113,32 +117,30 @@ cmdnode* readinput(cmdnode* historybuffer) {
 				arrow = readchar();
 				switch(arrow) {
 					case('A'): 
-								printf("\033[2K\r"); //Clear everything to the beginning of the line and then display prompt;
+								printf("\033[1K\r"); //Clear everything to the beginning of the line and then display prompt;
 								printf(">%s", historymarker->prev->str);
 								strcpy(currentcommand, historymarker->prev->str);
 								historymarker = historymarker->prev;
-								while(historymarker->str[0]=='\0') {
+								while(historymarker->prev->str[0]=='\0') {
 									historymarker = historymarker->prev;
 								}
 								break;
 					case('B'):
-								printf("\033[2K\r");
+								printf("\033[1K\r");
 								printf(">%s", historymarker->next->str);
 								strcpy(currentcommand, historymarker->next->str);
 								historymarker = historymarker->next;
-								while(historymarker->str[0]=='\0') {
+								while(historymarker->next->str[0]=='\0') {
 									historymarker = historymarker->next;
 								}
-								break;
-					default: 
-								printf("Switch statement executed\n");
 								break;
 				}
 			}
 			else {
 				printf("%c", c);
-				currentcommand[strlen(currentcommand)] = c;
-				currentcommand[strlen(currentcommand)+1] = '\0';
+				comlen = strlen(currentcommand);
+				currentcommand[comlen] = c;
+				currentcommand[comlen+1] = '\0';
 			}
 			fflush(stdout);
 		} 
