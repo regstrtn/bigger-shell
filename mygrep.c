@@ -37,11 +37,11 @@ int handleoptions(int argc, char** argv) {
 		}
 		switch(c) {
 			case 'v':
-							printf("V\n");
+							//printf("V\n");
 							invflag = 1;
 							break;
 			case 'm':
-							printf("M %s\n", optarg);
+							//printf("M %s\n", optarg);
 							maxcount = atoi(optarg);
 							break;
 		}		
@@ -78,7 +78,7 @@ int processfile(const char *pattern, char* filename) {
 	int regexmatch = 0;
 	char *matchedline = NULL;
 //	char *searchstring = pattern;
-	printf("Search string: %s\n", pattern);
+	//printf("Search string: %s\n", pattern);
 	int i = 0, j = 0, linestoprint=100000;
 	printf("Pattern: %s, Filename: %s\n", pattern, filename);
 	if(maxcount>0) linestoprint = maxcount;
@@ -94,7 +94,7 @@ int processfile(const char *pattern, char* filename) {
 			printf("%d %s",i, buffer);
 			i++;
 		} 
-		if(regexmatch && invflag) {
+		if(!regexmatch && invflag) {
 			printf("%d %s",i,  buffer);
 			i++;
 		}
@@ -126,10 +126,10 @@ int main(int argc, char **argv){
 					return 1;
 	}
 	int argvpos = handleoptions(argc, argv);
-	printf("optind : %d %s\n", argvpos, argv[optind]);
+	//printf("optind : %d %s\n", argvpos, argv[optind]);
 	if(argvpos) {
-		if(invflag) printf("Invert flag set\n");
-		if(maxcount>0) printf("Max flag set\n");
+		//if(invflag) printf("Invert flag set\n");
+		//if(maxcount>0) printf("Max flag set\n");
 	}
 	processfile((const char*)argv[optind], argv[optind+1]);
 	if(argvpos == 0) perror("mygrep");
