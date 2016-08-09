@@ -53,9 +53,9 @@ cmdnode* makebuffer(int n) {
 			memset(a->next->str, 0, sizeof(a->next->str));
 			a = a->next;
 	}
-	a->next = head;
-	head->prev = a;
-	for(i = 0;i<n+1;i++) {
+	a->next = NULL;
+	head->prev = NULL;
+	for(i = 0;i<n;i++) {
 		//printf("Number: %d\n", b->i);
 	 	b = b->next;
 	}
@@ -72,14 +72,14 @@ int testmain(int argc, char **argv) {
 //This is the main function that is getting called by the shell
 	int i = 0;
 	char* arrtoreturn = (char*)malloc(500*sizeof(char));
-	cmdnode* historybuffer = makebuffer(10);
+	cmdnode* historybuffer = makebuffer(3);
 	cmdnode *historymarker;
 	cmdnode *currcommandmarker;
 	while(1) {
 					historybuffer = readinput(historybuffer);
 					//historybuffer = testlinklist(i, historybuffer, historymarker);
 					printf("Curr comm printed from main: %s\n", historybuffer->prev->str);
-					if(i++>15) break;
+					if(i++>20) break;
 	}
 	strcpy(arrtoreturn, historybuffer->prev->str);
 	return 1;
@@ -102,6 +102,7 @@ cmdnode* testlinklist(int n,cmdnode* historybuffer, cmdnode* historymarker) {
 
 cmdnode* readinput(cmdnode* historybuffer) {
 	char c, arrow;
+	int erase = 0;
 	int comlen = 0, j = 0;
 	char currentcommand[500];
 	cmdnode* historymarker = historybuffer;
@@ -110,8 +111,10 @@ cmdnode* readinput(cmdnode* historybuffer) {
 			if(c==127) {
 				printf("\b \b");
 				comlen = strlen(currentcommand);
+				if(erase) comlen--;
 				for(j=comlen-1;j<500;j++) currentcommand[j] = '\0';
-				comlen = strlen(currentcommand);
+				if(!erase) erase = 1;
+				//comlen = strlen(currentcommand);
 				//printf("Post backspace: %d %s\n",comlen, currentcommand);
 			}
 			if(c == '\033') {
@@ -119,21 +122,27 @@ cmdnode* readinput(cmdnode* historybuffer) {
 				arrow = readchar();
 				switch(arrow) {
 					case('A'): 
-								printf("\033[1K\r"); //Clear everything to the beginning of the line and then display prompt;
-								printf(">%s", historymarker->prev->str);
-								strcpy(currentcommand, historymarker->prev->str);
-								historymarker = historymarker->prev;
-								while(historymarker->prev->str[0]=='\0') {
+								if(historymarker->prev!=NULL) {
+									printf("\033[1K\r"); //Clear everything to the beginning of the line and then display prompt;
+									printf(">%s", historymarker->prev->str);
+									strcpy(currentcommand, historymarker->prev->str);
 									historymarker = historymarker->prev;
+									//while(historymarker->prev->str[0]=='\0') {
+									//	historymarker = historymarker->prev;
+									//}
 								}
 								break;
 					case('B'):
-								printf("\033[1K\r");
-								printf(">%s", historymarker->next->str);
-								strcpy(currentcommand, historymarker->next->str);
-								historymarker = historymarker->next;
-								while(historymarker->next->str[0]=='\0') {
-									historymarker = historymarker->next;
+								if(historymarker->next!=NULL ) {
+									if(historymarker->str[0]!='\0') {
+										printf("\033[1K\r");
+										printf(">%s", historymarker->next->str);
+										strcpy(currentcommand, historymarker->next->str);
+										historymarker = historymarker->next;
+										//while(historymarker->next->str[0]=='\0') {
+										//	historymarker = historymarker->next;
+										//}
+									}
 								}
 								break;
 				}

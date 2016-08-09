@@ -198,7 +198,7 @@ int main(int argc, char **argv){
 	int pipes;
 	int retval = 1;
 	setpathvar();
-	cmdnode* historybuffer = makebuffer(30);
+	cmdnode* historybuffer = makebuffer(130);
 	while(1) {
 		printf(">");fflush(NULL);
 		historybuffer = read_user_input(historybuffer);
