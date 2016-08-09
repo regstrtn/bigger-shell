@@ -157,7 +157,8 @@ cmdnode* readinput(cmdnode* historybuffer) {
 		} 
 		strcpy(historybuffer->str, currentcommand);
 		//historybuffer = historybuffer->next;
-		printf("\nCurrent command from read fn: %s\n", historybuffer->str);
+		//printf("\nCurrent command from read fn: %s\n", historybuffer->str);
+		printf("\n"); //Required because input handling sucks
 		return historybuffer->next;
 		//currentcommand[0] = '\0';	
 } 

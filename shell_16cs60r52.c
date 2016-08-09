@@ -36,7 +36,7 @@ void setpathvar() {
 	strcat(newpath, ":");
 	strcat(newpath, curdir);
 	setenv("PATH", newpath, 1);
-	printf("%s\n", getenv("PATH"));	
+	//printf("%s\n", getenv("PATH"));	
 }
 
 
@@ -89,7 +89,7 @@ cmd *splitintoargs(int argc, char *inp) {
 	token = strtok(inpbuffer, s1);
 	while(token!=NULL) {
 		strcpy((cmdarr+i)->cmdstring, token);
-		printf("cmdstring: %s\n", (cmdarr+i)->cmdstring);
+		//printf("cmdstring: %s\n", (cmdarr+i)->cmdstring);
 		token = strtok(NULL, s1);
 		i++;
 	}
@@ -101,11 +101,11 @@ cmd *splitintoargs(int argc, char *inp) {
 			//strcpy((cmdarr+i)->argv[j], token);
 			(cmdarr+i)->argv[j] = token;	
 			token = strtok(NULL, s2);
-			printf("cmd string tokens: %d %s\n", j, (cmdarr+i)->argv[j]);
+			//printf("cmd string tokens: %d %s\n", j, (cmdarr+i)->argv[j]);
 			j++;
 		}
 			(cmdarr+i)->argc = j;
-			printf("cmdstringtokens: %d %s\n", j, (cmdarr+i)->argv[j]);
+			//printf("cmdstringtokens: %d %s\n", j, (cmdarr+i)->argv[j]);
 			(cmdarr+i)->argv[j] = NULL; //Set last argument to execvp as NULL
 	} return cmdarr;
 }
@@ -136,7 +136,7 @@ int create_process(int in, int out, cmd* cmdarr) {
 }
 
 int runchains(int pipes, cmd* cmdarr) {
- printf("Runchains called\n"); 
+ //printf("Runchains called\n"); 
  int i;
  pid_t pid;
  int in, fd[2];
@@ -163,7 +163,7 @@ int cmd_execute(int pipes, cmd* cmdarr) {
 				 	bkg = 1;
 					cmdarr->argv[cmdarr->argc-1] = NULL;
 	}
-	printf("Number of pipes: %d\n", pipes);
+	//printf("Number of pipes: %d\n", pipes);
 	//Execute mycd and exit
 	for(i=0;i<numshellfn;i++) {
 		if(strcmp(cmdarr->argv[0], shellfn[i])==0) {
@@ -175,8 +175,11 @@ int cmd_execute(int pipes, cmd* cmdarr) {
 
 	if((pid = fork())==0) { //This is the child
 					if(pipes>0) { runchains(pipes,cmdarr); exit(0); }
-					printf("Command to execute: %s\n", cmdarr->argv[0]);
-					if(bkg) setpgid(0, 0);
+					//printf("Command to execute: %s\n", cmdarr->argv[0]);
+					if(bkg) {
+									setpgid(0, 0);
+									printf("PID: %d\n", getpid());
+					}
 					if(execvp(cmdarr[0].argv[0], (char* const*)cmdarr[0].argv)==-1) perror("Execvp: ");
 					exit(errno);
 					
@@ -198,7 +201,7 @@ int main(int argc, char **argv){
 	int pipes;
 	int retval = 1;
 	setpathvar();
-	cmdnode* historybuffer = makebuffer(130);
+	cmdnode* historybuffer = makebuffer(230);
 	while(1) {
 		printf(">");fflush(NULL);
 		historybuffer = read_user_input(historybuffer);
