@@ -175,11 +175,11 @@ int cmd_execute(int pipes, cmd* cmdarr) {
 
 	if((pid = fork())==0) { //This is the child
 					if(pipes>0) { runchains(pipes,cmdarr); exit(0); }
-					//printf("Command to execute: %s\n", cmdarr->argv[0]);
 					if(bkg) {
 									setpgid(0, 0);
 									printf("PID: %d\n", getpid());
 					}
+					printf("Command to execute: %s\n", cmdarr[0].argv[1]);
 					if(execvp(cmdarr[0].argv[0], (char* const*)cmdarr[0].argv)==-1) perror("Execvp: ");
 					exit(errno);
 					

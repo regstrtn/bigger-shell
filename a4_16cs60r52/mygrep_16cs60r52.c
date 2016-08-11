@@ -70,8 +70,10 @@ int matchregex(char* line, const char* pattern) {
 	else return 0;
 }
 
-int processfile(const char *pattern, char* filename) {
-	FILE *fp = fopen(filename, "r");
+int processfile(const char *pattern, char* filename, int pipeflag) {
+	FILE *fp;
+	if(!pipeflag) fp = fopen(filename, "r");
+	if(pipeflag)  fp = stdin;
 	char *buffer = NULL;
 	size_t bufsize;
 	int size;
@@ -121,8 +123,13 @@ int processfile(const char *pattern, char* filename) {
 
 
 int main(int argc, char **argv){
+	int pipeflag = 0;
+	char filename[200];
 	if(argc<3) {
-					printf("mygrep takes atleast 3 arguments\n"); 
+					pipeflag = 1;
+	}
+	if(argc<2) {
+					printf("mygrep takes atleast 2 arguments\n"); 
 					return 1;
 	}
 	int argvpos = handleoptions(argc, argv);
@@ -131,7 +138,9 @@ int main(int argc, char **argv){
 		//if(invflag) printf("Invert flag set\n");
 		//if(maxcount>0) printf("Max flag set\n");
 	}
-	processfile((const char*)argv[optind], argv[optind+1]);
+	if(!pipeflag) strcpy(filename, argv[optind+1]);
+	else strcpy(filename, "stdin");
+	processfile((const char*)argv[optind], filename, pipeflag);
 	if(argvpos == 0) perror("mygrep");
 	return 0;
 }
