@@ -141,11 +141,11 @@ int match(char *regexp, char *text)
         }    
         if(regexp[1] == '?')
         {
-					if(regexp[0] != text[1]) return matchhere(regexp+2, text);
+					if(regexp[0] != text[0]) return matchhere(regexp+2, text);
 					if(regexp[0]==text[0]) return matchhere(regexp+2, text+1);
 					//if(regexp[0] != text[1] && regexp[0] == text[0])
           //    return 1;
-           return 0; 
+           //return 0; 
         }    
         if (regexp[0] == '$' && regexp[1] == '\0')
             return *text == '\0';
