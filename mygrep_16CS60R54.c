@@ -1,13 +1,15 @@
-
 #include<stdio.h>
 #include<stdbool.h>
 #include<stdio.h>
+#include <stdlib.h>
 #include<string.h>
-#include<malloc.h>
+#include <ctype.h>
+//#include<malloc.h>
 //#include <fcntl.h>
 //#include <sys/types.h>
 //#include <sys/stat.h>
 /*
+
 bool matchExp(char exp[], char str[], int i, int j)
 {
 
@@ -108,7 +110,11 @@ bool matchExp(char exp[], char str[], int i, int j)
 }
 */
 /* match: search for regexp anywhere in text */
-    int match(char *regexp, char *text)
+
+int matchhere(char *, char*);
+int matchstar(int, char*, char*);
+
+int match(char *regexp, char *text)
     {
         if (regexp[0] == '^')
             return matchhere(regexp+1, text);
@@ -135,8 +141,10 @@ bool matchExp(char exp[], char str[], int i, int j)
         }    
         if(regexp[1] == '?')
         {
-           if(regexp[0] != text[1] && regexp[0] == text[0])
-              return 1;
+					if(regexp[0] != text[1]) return matchhere(regexp+2, text);
+					if(regexp[0]==text[0]) return matchhere(regexp+2, text+1);
+					//if(regexp[0] != text[1] && regexp[0] == text[0])
+          //    return 1;
            return 0; 
         }    
         if (regexp[0] == '$' && regexp[1] == '\0')
@@ -156,6 +164,17 @@ bool matchExp(char exp[], char str[], int i, int j)
         } while (*text != '\0' && (*text++ == c || c == '.'));
         return 0;
     }
+
+int main(int argc, char*argv[]) {
+
+				int m = match(argv[1], argv[2]);
+				if(m) {
+				printf("Matched: %s Line: %s\n", argv[1], argv[2]);
+				}
+				else printf("Not matched: %s Line: %s\n", argv[1], argv[2]);
+}
+
+/*
 int main(int argc,char *argv[])
 {
 
@@ -165,12 +184,10 @@ int main(int argc,char *argv[])
    FILE *fpp;
    int i,count=0,occ=0;
    int r;
-   /*
    if(open(stdin , 0, 0) == -1)
      printf("Unsuccessful\n");
    else
      printf("Successful\n");
-   */
    if(argc < 2)
    {
       printf("Insufficient arguments\n");
@@ -210,7 +227,6 @@ int main(int argc,char *argv[])
          argc--;
       }
    }
-   /*
    for(i = 0; i<argc ; i++)
      printf(" %d %s \n", i , argv[i]);
    */  
@@ -219,7 +235,7 @@ int main(int argc,char *argv[])
    {
       printf("Insufficient Arguments\n");
       return 0;
-   }*/
+   }
    
    char regexp[1024] = {0};
    bool Minus_v  = false;
@@ -380,7 +396,7 @@ int main(int argc,char *argv[])
    }
 
 
-  /* printf("Inside main");
+   printf("Inside main");
    if(matchExp("abcdef" , "abcdef ",0,0  ))
       printf("\n\t 1 Match found");
    if(matchExp( "abc*def?" , "abcccde",0,0 ))
@@ -390,8 +406,7 @@ int main(int argc,char *argv[])
   if(matchExp("abc*dea*" , "abccdeb",0,0 ))
       printf("\n\t 4 Match found");
    printf("\n");
-*/
    return 0;
 }
 
-
+*/
